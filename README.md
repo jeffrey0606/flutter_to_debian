@@ -1,0 +1,1 @@
+A simple command-line application to help you easily bundle your flutter app build into a debian package ready for production.
