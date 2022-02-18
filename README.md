@@ -32,7 +32,7 @@ flutter_app:
   arch: x64
 ```
 #### Command
-Points to the binary at your project's linux release bundle, and runs when snap is invoked.
+Points to the binary at your project's linux release bundle, and runs when debian package is invoked.
 #### arch
 the build architecture of your app.
 
