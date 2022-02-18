@@ -75,7 +75,7 @@ Future<String> copyBuildToRootProject(
   String tempDir,
   String newPackageName,
 ) async {
-  Directory finalExecDir = Directory("debian/executable");
+  Directory finalExecDir = Directory("debian/packages");
   if (!(await finalExecDir.exists())) {
     await finalExecDir.create(
       recursive: true,
@@ -113,12 +113,12 @@ Future<void> addDesktopDebianControl() async {
   final Map control = Vars.debianYaml["control"];
   final String preInstScript = '''
 #!/bin/bash
-echo "\n⚠️  ⚠️  ⚠️"
+echo "\n⚠️  ⚠️  ⚠️  Warning!"
 echo "\nThe creator of a debian package has 100% access to every parts of the system it's installed"
 echo "\nMaintainer: ${control["Maintainer"]}"
 echo "\nDescription: ${control["Description"]}"
 
-echo "\nAre you want to proceed with the installation of this package? (yes/no): "
+echo "\nSure you want to proceed with the installation of this package (yes/no) ?:"
 read choice
 
 if [[ "\$choice" != "yes" ]]; then
@@ -222,7 +222,7 @@ Future<void> addDesktopDataFiles(String package) async {
       await File(data.path).copy(icon);
     } else if (mimeType.contains("desktop")) {
       final String appExecutableName =
-          Vars.debianYaml["flutter_app"]["app_executable_name"];
+          Vars.debianYaml["flutter_app"]["command"];
 
       desktop = await File(data.path).readAsString();
       desktop.trim();
