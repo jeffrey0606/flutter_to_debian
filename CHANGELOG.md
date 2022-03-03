@@ -9,3 +9,7 @@
 ## 1.0.2
 
 - Fixed readme
+
+## 1.0.3
+
+- add clarity about the Depends attribute in the debain.yaml file

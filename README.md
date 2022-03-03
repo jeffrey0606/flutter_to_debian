@@ -38,6 +38,15 @@ the build architecture of your app.
 
 ## Control
 This is what describes to the apt package manager or what ever piece of software you are using to install your app what it's all about.
+#### Depends
+List the libraries your project depends on and they will be installed by the apt package manager before your app in installed on the system.
+For example:
+<br>
+the pub.dev package [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) linux version depends on
+```
+libsecret-1-0 and libjsoncpp1
+```
+#### NB: more than one Depends are separated by " , " .
 
 # Desktop file and icon 🖥️
 Desktop entry files are used to add an application to the desktop menu. These files specify the name and icon of your application, the categories it belongs to, related search keywords and more. These files have the extension .desktop and follow the XDG Desktop Entry Specification.
