@@ -196,6 +196,24 @@ Future<void> addDesktopBuildBundle(String package) async {
   if (result1.exitCode != 0) {
     throw Exception(result.stderr.toString());
   }
+
+  Directory skeleton = Directory("debian/skeleton");
+  if (! await skeleton.exists()) {
+    print("No skeleton found");
+  } else {
+    final ProcessResult result = await Process.run(
+      "rsync",
+      [
+        "-a",
+        '${skeleton.absolute.path}/',
+        Vars.newDebPackageDirPath,
+      ],
+    );
+
+    if (result.exitCode != 0) {
+      throw Exception(result.stderr.toString());
+    }
+  }
 }
 
 Future<void> addDesktopDataFiles(String package) async {
@@ -276,9 +294,14 @@ Future<void> createFileStructure() async {
     ),
   ));
 
+  var base = Vars.debianYaml["flutter_app"].containsKey('parent')
+      ? Vars.debianYaml["flutter_app"]["parent"] : "opt";
+  if (base.startsWith('/')){
+    base = base.substring(1);
+  }
   ///Create Path to app biuld bundle for debian. this means your app will be
   ///point to this location /opt/[package] after installation
-  final List<String> pathsToApp = ["opt"];
+  final List<String> pathsToApp = [base];
 
   Vars.pathToFinalAppLocation = await createFolders(
     pathsToApp,
@@ -302,7 +325,7 @@ Future<String> createFolders(List<String> paths, String root) async {
       path.join(currentPath, to),
     );
     if (!(await directory.exists())) {
-      await directory.create();
+      await directory.create(recursive: true);
     }
     currentPath = directory.path;
   }
