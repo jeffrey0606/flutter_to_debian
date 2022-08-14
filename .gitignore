@@ -5,3 +5,8 @@
 # Conventional directory for build output.
 build/
 preinst
+/.idea/
+/debian/
+C
+flutter_to_debian
+*.iml

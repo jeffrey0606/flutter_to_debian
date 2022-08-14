@@ -13,3 +13,9 @@
 ## 1.0.2+1
 
 - add clarity about the Depends attribute in the debain.yaml file
+
+## 1.0.3
+
+- the parent directory is now configurable (instead of /opt)
+- the files in debian/skeleton will be copied: used for configuration files, documentation...
+
