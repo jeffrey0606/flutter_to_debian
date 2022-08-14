@@ -7,7 +7,7 @@ class Vars {
     File yaml = File("debian/debian.yaml");
 
     if (!(await yaml.exists())) {
-      throw Exception("Couldn't find debian.yaml in dedian/ folder");
+      throw Exception("Couldn't find debian.yaml in debian/ folder");
     }
 
     try {

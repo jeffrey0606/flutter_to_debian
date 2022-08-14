@@ -5,3 +5,6 @@
 # Conventional directory for build output.
 build/
 preinst
+/.idea/
+/debian/
+C

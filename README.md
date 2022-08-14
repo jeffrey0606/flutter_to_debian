@@ -11,6 +11,7 @@ Place the YMAL file in your Flutter project under ****<*project root*>*/debian/d
 flutter_app: 
   command: mega_cool_app
   arch: x64
+  base: /usr/lib
 
 control:
   Package: Mega Cool App
@@ -35,6 +36,16 @@ flutter_app:
 Points to the binary at your project's linux release bundle, and runs when debian package is invoked.
 #### arch
 the build architecture of your app.
+#### base
+the app will be installed in a subdirectory <command> (like mega_cool_app) in this directory.
+
+## Additional files:
+If a directory debian/skeleton exists that files will be copied into the package. 
+
+This can be used for default configuration files.
+
+**Example:**
+The file debian/skeleton/etc/megacool/main.conf will be installed as /etc/megacool/main.conf
 
 ## Control
 This is what describes to the apt package manager or what ever piece of software you are using to install your app what it's all about.
