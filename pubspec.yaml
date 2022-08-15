@@ -1,6 +1,6 @@
 name: flutter_to_debian
 description: A command application to help you easily bundle your flutter app build into a debian package ready for production.
-version: 1.0.2+1
+version: 1.0.4
 homepage: https://www.hooreo.com/
 repository: https://github.com/jeffrey0606/flutter_to_debian
 
