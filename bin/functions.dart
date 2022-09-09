@@ -241,6 +241,9 @@ Future<void> addDesktopDataFiles(String package) async {
     } else if (mimeType.contains("desktop")) {
       final String appExecutableName =
           Vars.debianYaml["flutter_app"]["command"];
+      
+      final String execFieldCodes =
+          Vars.debianYaml["flutter_app"]["execFieldCodes"];
 
       desktop = await File(data.path).readAsString();
       desktop.trim();
@@ -255,13 +258,24 @@ Future<void> addDesktopDataFiles(String package) async {
       if (!desktop.endsWith("\n")) {
         desktop += "\n";
       }
-      desktop += "Exec=$execPath";
+    
+      var fieldCodes = '';
+      
+      final formattedFieldCodes = execFieldCodes.trim().replaceAll(' ', '').split(',');
+
+      for(final fieldCode in formattedFieldCodes) {
+        if(Vars.allowedExecFieldCodes.contains(fieldCode)) {
+          fieldCodes += '%$fieldCode ';
+        } else {
+          throw Exception("Field code %$fieldCode is not allowed");
+        }
+      }
+
+      desktop += "Exec=$execPath $fieldCodes";
       desktop += "\nTryExec=$execPath";
       desktopFileName = fileName;
     }
   }
-
-  // print("desktop: $desktop");
 
   await File(
     path.join(
