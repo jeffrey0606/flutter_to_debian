@@ -42,6 +42,15 @@ flutter_app:
 Points to the binary at your project's linux release bundle, and runs when debian package is invoked.
 #### arch
 the build architecture of your app.
+#### execFieldCodes
+A comma-separated list of field codes for the `Exec` key in the desktop
+file.
+
+***Example***: `execFieldCodes: f,u,i`
+***Supported codes***: f, F, u, U, i, c, k
+
+Further information is available in the [FreeDesktop
+spec](https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html).
 #### parent
 the app will be installed in a subdirectory <command> (like mega_cool_app) in this 
 directory.
