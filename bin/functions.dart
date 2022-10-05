@@ -280,7 +280,7 @@ Future<void> addDesktopDataFiles(String package) async {
 
   await File(
     path.join(
-      Vars.pathToAplications,
+      Vars.pathToApplications,
       desktopFileName,
     ),
   ).writeAsString(desktop);
@@ -320,7 +320,7 @@ Future<void> createFileStructure() async {
   );
 
   ///Create applications and icons Folder
-  Vars.pathToAplications = (await createAFolder(
+  Vars.pathToApplications = (await createAFolder(
     path.join(
       sharePath,
       "applications",

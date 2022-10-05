@@ -31,7 +31,7 @@ class Vars {
 
   static late String pathToIcons;
 
-  static late String pathToAplications;
+  static late String pathToApplications;
 
   static late String pathToFinalAppLocation;
 
