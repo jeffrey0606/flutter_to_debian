@@ -3,8 +3,15 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 class Vars {
-
-  static const List<String> allowedExecFieldCodes = ['f','F','u', 'U', 'i', 'c', 'k'];
+  static const List<String> allowedExecFieldCodes = [
+    'f',
+    'F',
+    'u',
+    'U',
+    'i',
+    'c',
+    'k'
+  ];
 
   static Future<void> parseDebianYaml() async {
     File yaml = File("debian/debian.yaml");
@@ -28,7 +35,7 @@ class Vars {
 
   static late String pathToFinalAppLocation;
 
-  static late String pathToDedianControl;
+  static late String pathToDebianControl;
 
   static late String newDebPackageDirPath;
 }
