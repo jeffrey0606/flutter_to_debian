@@ -17,6 +17,7 @@ flutter_app:
   command: mega_cool_app
   arch: x64
   parent: /usr/local/lib
+  nonInteractive: false
 
 control:
   Package: Mega Cool App
@@ -37,6 +38,7 @@ flutter_app:
   command: mega_cool_app
   arch: x64
   parent: /usr/local/lib
+  nonInteractive: false
 ```
 #### Command
 Points to the binary at your project's linux release bundle, and runs when debian package is invoked.
@@ -54,6 +56,8 @@ spec](https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.h
 #### parent
 the app will be installed in a subdirectory <command> (like mega_cool_app) in this 
 directory.
+### nonInteractive
+When true, no prompt for confirmation is displayed during package installation.
 
 ***default***: /opt
 

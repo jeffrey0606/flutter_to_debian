@@ -62,6 +62,7 @@ Future<String> flutterToDebian(List<String> args) async {
   );
 
   await addDesktopDebianControl();
+  await addDebianPreInstall();
 
   await buildDebianPackage();
 
@@ -109,7 +110,14 @@ Future<void> buildDebianPackage() async {
   }
 }
 
-Future<void> addDesktopDebianControl() async {
+Future<void> addDebianPreInstall() async {
+  final isNonInteractive = Vars.debianYaml["flutter_app"]["nonInteractive"] ?? false;
+  if (isNonInteractive) {
+    // package is intended for automated install, don't add
+    // the preinst file asking for confirmation
+    return;
+  }
+
   final Map control = Vars.debianYaml["control"];
   final String preInstScript = '''
 #!/bin/bash
@@ -129,15 +137,6 @@ else
 fi
 ''';
 
-  // print("controls from debian.yaml: $control");
-  String newControl = "";
-  File controlFile = File(
-    path.join(
-      Vars.pathToDedianControl,
-      "control",
-    ),
-  );
-
   File preinstFile = File(
     path.join(
       Vars.pathToDedianControl,
@@ -148,10 +147,6 @@ fi
   if (!(await preinstFile.exists())) {
     await preinstFile.create();
   }
-
-  control.forEach((key, value) {
-    newControl += "$key:${value ?? ""}\n";
-  });
 
   await preinstFile.writeAsString(preInstScript);
   final ProcessResult result = await Process.run(
@@ -166,6 +161,24 @@ fi
   if (result.exitCode != 0) {
     throw Exception(result.stderr.toString());
   }
+}
+
+Future<void> addDesktopDebianControl() async {
+  final Map control = Vars.debianYaml["control"];
+
+  // print("controls from debian.yaml: $control");
+  String newControl = "";
+  File controlFile = File(
+    path.join(
+      Vars.pathToDedianControl,
+      "control",
+    ),
+  );
+
+  control.forEach((key, value) {
+    newControl += "$key:${value ?? ""}\n";
+  });
+
   await controlFile.writeAsString(newControl);
 }
 
