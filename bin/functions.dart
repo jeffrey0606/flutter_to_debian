@@ -63,6 +63,7 @@ Future<String> flutterToDebian(List<String> args) async {
 
   await addDesktopDebianControl();
   await addDebianPreInstall();
+  await addPackageMaintainerScripts();
 
   await buildDebianPackage();
 
@@ -107,6 +108,18 @@ Future<void> buildDebianPackage() async {
     return;
   } else {
     throw Exception(result.stderr.toString());
+  }
+}
+
+Future<void> addPackageMaintainerScripts() async {
+  Directory scriptsDir = Directory("debian/scripts");
+  if (!await scriptsDir.exists() || await scriptsDir.list().isEmpty) return;
+
+  for (var script in ["preinst", "postinst", "prerm", "postrm"]) {
+    final scriptFile = File(path.join("debian/scripts", script));
+    if (await scriptFile.exists()) {
+      scriptFile.copy(path.join(Vars.pathToDebianControl, script));
+    }
   }
 }
 
