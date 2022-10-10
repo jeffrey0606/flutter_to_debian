@@ -63,6 +63,7 @@ Future<String> flutterToDebian(List<String> args) async {
 
   await addDesktopDebianControl();
   await addDebianPreInstall();
+  await addPackageMaintainerScripts();
 
   await buildDebianPackage();
 
@@ -110,8 +111,21 @@ Future<void> buildDebianPackage() async {
   }
 }
 
+Future<void> addPackageMaintainerScripts() async {
+  Directory scriptsDir = Directory("debian/scripts");
+  if (!await scriptsDir.exists() || await scriptsDir.list().isEmpty) return;
+
+  for (var script in ["preinst", "postinst", "prerm", "postrm"]) {
+    final scriptFile = File(path.join("debian/scripts", script));
+    if (await scriptFile.exists()) {
+      scriptFile.copy(path.join(Vars.pathToDebianControl, script));
+    }
+  }
+}
+
 Future<void> addDebianPreInstall() async {
-  final isNonInteractive = Vars.debianYaml["flutter_app"]["nonInteractive"] ?? false;
+  final isNonInteractive =
+      Vars.debianYaml["flutter_app"]["nonInteractive"] ?? false;
   if (isNonInteractive) {
     // package is intended for automated install, don't add
     // the preinst file asking for confirmation
@@ -139,7 +153,7 @@ fi
 
   File preinstFile = File(
     path.join(
-      Vars.pathToDedianControl,
+      Vars.pathToDebianControl,
       "preinst",
     ),
   );
@@ -170,7 +184,7 @@ Future<void> addDesktopDebianControl() async {
   String newControl = "";
   File controlFile = File(
     path.join(
-      Vars.pathToDedianControl,
+      Vars.pathToDebianControl,
       "control",
     ),
   );
@@ -211,7 +225,7 @@ Future<void> addDesktopBuildBundle(String package) async {
   }
 
   Directory skeleton = Directory("debian/skeleton");
-  if (! await skeleton.exists()) {
+  if (!await skeleton.exists()) {
     print("No skeleton found");
   } else {
     final ProcessResult result = await Process.run(
@@ -270,7 +284,8 @@ Future<void> addDesktopDataFiles(String package) async {
       }
 
       final fieldCodes = formatFieldCodes();
-      desktop += fieldCodes == "" ? "Exec=$execPath" : "Exec=$execPath $fieldCodes";
+      desktop +=
+          fieldCodes == "" ? "Exec=$execPath" : "Exec=$execPath $fieldCodes";
       desktop += "\nTryExec=$execPath";
       desktopFileName = fileName;
     }
@@ -278,12 +293,11 @@ Future<void> addDesktopDataFiles(String package) async {
 
   await File(
     path.join(
-      Vars.pathToAplications,
+      Vars.pathToApplications,
       desktopFileName,
     ),
   ).writeAsString(desktop);
 }
-
 
 String formatFieldCodes() {
   final String execFieldCodes =
@@ -295,10 +309,11 @@ String formatFieldCodes() {
 
   var fieldCodes = '';
 
-  final formattedFieldCodes = execFieldCodes.trim().replaceAll(' ', '').split(',');
+  final formattedFieldCodes =
+      execFieldCodes.trim().replaceAll(' ', '').split(',');
 
-  for(final fieldCode in formattedFieldCodes) {
-    if(Vars.allowedExecFieldCodes.contains(fieldCode)) {
+  for (final fieldCode in formattedFieldCodes) {
+    if (Vars.allowedExecFieldCodes.contains(fieldCode)) {
       fieldCodes += '%$fieldCode ';
     } else {
       throw Exception("Field code %$fieldCode is not allowed");
@@ -318,7 +333,7 @@ Future<void> createFileStructure() async {
   );
 
   ///Create applications and icons Folder
-  Vars.pathToAplications = (await createAFolder(
+  Vars.pathToApplications = (await createAFolder(
     path.join(
       sharePath,
       "applications",
@@ -332,10 +347,12 @@ Future<void> createFileStructure() async {
   ));
 
   var base = Vars.debianYaml["flutter_app"].containsKey('parent')
-      ? Vars.debianYaml["flutter_app"]["parent"] : "opt";
-  if (base.startsWith('/')){
+      ? Vars.debianYaml["flutter_app"]["parent"]
+      : "opt";
+  if (base.startsWith('/')) {
     base = base.substring(1);
   }
+
   ///Create Path to app biuld bundle for debian. this means your app will be
   ///point to this location /opt/[package] after installation
   final List<String> pathsToApp = [base];
@@ -346,7 +363,7 @@ Future<void> createFileStructure() async {
   );
 
   ///Create path to the debian control file
-  Vars.pathToDedianControl = (await createAFolder(
+  Vars.pathToDebianControl = (await createAFolder(
     path.join(
       Vars.newDebPackageDirPath,
       "DEBIAN",
