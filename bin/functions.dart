@@ -245,6 +245,7 @@ Future<void> addDesktopBuildBundle(String package) async {
 
 Future<void> addDesktopDataFiles(String package) async {
   Directory gui = Directory("debian/gui/");
+  if (!await gui.exists()) await gui.create(recursive: true);
   late String desktopFileName;
   String desktop = "";
   for (var data in gui.listSync()) {
