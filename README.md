@@ -20,10 +20,9 @@ flutter_app:
   nonInteractive: false
 
 control:
-  Package: Mega Cool App
+  Package: mega-cool-app
   Version: 1.0.0
   Architecture: amd64
-  Essential: no
   Priority: optional
   Depends:
   Maintainer:
