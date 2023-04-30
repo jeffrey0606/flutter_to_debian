@@ -164,9 +164,8 @@ fi
 
   await preinstFile.writeAsString(preInstScript);
   final ProcessResult result = await Process.run(
-    "sudo",
+    "chmod",
     [
-      "chmod",
       "755",
       preinstFile.path,
     ],
