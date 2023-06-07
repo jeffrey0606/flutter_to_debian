@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:yaml/yaml.dart';
 
+import 'functions.dart';
+
 class Vars {
   static const List<String> allowedExecFieldCodes = [
     'f',
@@ -13,21 +15,34 @@ class Vars {
     'k'
   ];
 
-  static Future<void> parseDebianYaml() async {
+  static Future<FlutterToDebian> parseDebianYaml() async {
     File yaml = File("debian/debian.yaml");
-
     if (!(await yaml.exists())) {
-      throw Exception("Couldn't find debian.yaml in debian/ folder");
+      yaml = File("debian/debian.yml");
     }
 
-    try {
-      debianYaml = loadYaml(await yaml.readAsString());
-    } catch (e) {
-      rethrow;
+    if (await yaml.exists()) {
+      try {
+        YamlMap yamlMap = loadYaml(await yaml.readAsString());
+        return FlutterToDebian.fromYaml(yamlMap);
+      } catch (e) {
+        rethrow;
+      }
     }
+    
+    File pubspec = File("pubspec.yaml");
+
+    if (await pubspec.exists()) {
+      try {
+        YamlMap yamlMap = loadYaml(await pubspec.readAsString());
+        return FlutterToDebian.fromPubspec(yamlMap);
+      } catch (e) {
+        rethrow;
+      }
+    }
+    
+    throw Exception("Couldn't find debian/debian.yaml or puspec.yaml");
   }
-
-  static late YamlMap debianYaml;
 
   static late String pathToIcons;
 
