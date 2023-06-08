@@ -168,7 +168,7 @@ class DependencyFinder {
         }
       }
       if (++ix % 10 == 0 && ix > 1) {
-        log('${ix} of ${lines.length} lines processed...');
+        log('${ix} of ${lines.length} lines processed...\r');
       }
     }
   }
@@ -238,7 +238,7 @@ class DependencyFinder {
         }
       }
       if (++ix % 10 == 0) {
-        log('$ix of ${packages.length} packages processed...');
+        log('$ix of ${packages.length} packages processed...\r');
       }
     }
     final count2 = rc.length;

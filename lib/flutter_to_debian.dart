@@ -296,7 +296,7 @@ GenericName=$appName
 Comment=${debianControl.description}
 Terminal=false
 Type=Application
-Categories=Utility
+Categories=Utility;
 Keywords=Flutter;
 Icon=${appExecutableName}
 """;

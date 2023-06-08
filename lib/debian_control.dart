@@ -20,7 +20,7 @@ class DebianControl {
     this.maintainer = '',
     this.description = '',
     this.priority = 'optional',
-    this.depends = 'optional',
+    this.depends = '',
     this.essential = 'no',
   });
 
