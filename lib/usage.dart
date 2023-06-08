@@ -1,7 +1,7 @@
 /// Writes a usage notice.
 ///
 /// [message] is an error message.
-void usage(String? message){
+void usage(String? message) {
   print('''Usage: flutter_to_debian [<mode> [<options>] ]
 <mode>:
   help
@@ -34,7 +34,7 @@ flutter_to_debian dependencies --excluded-packages=lintian,my-project prod/libs
   The packages lintian and my-project will be excluded from processing.
 Note: modes and options can be abbreviated: --ex-pack means --excluded-packages
 ''');
-  if (message != null){
+  if (message != null) {
     print('+++ $message');
   }
 }

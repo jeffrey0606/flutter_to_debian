@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-
-import 'dependencies.dart';
-import 'usage.dart';
-import 'vars.dart';
+import 'package:flutter_to_debian/dependencies.dart';
+import 'package:flutter_to_debian/usage.dart';
+import 'package:flutter_to_debian/vars.dart';
 
 const cmdDependencies = 'dependencies';
 const cmdHelp = 'help';

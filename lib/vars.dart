@@ -1,8 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter_to_debian/flutter_to_debian.dart';
 import 'package:yaml/yaml.dart';
-
-import 'functions.dart';
 
 class Vars {
   static const List<String> allowedExecFieldCodes = [
@@ -29,7 +28,7 @@ class Vars {
         rethrow;
       }
     }
-    
+
     File pubspec = File("pubspec.yaml");
 
     if (await pubspec.exists()) {
@@ -40,7 +39,7 @@ class Vars {
         rethrow;
       }
     }
-    
+
     throw Exception("Couldn't find debian/debian.yaml or puspec.yaml");
   }
 
