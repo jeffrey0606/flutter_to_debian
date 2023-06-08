@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'functions.dart';
 import 'vars.dart';
 import 'dependencies.dart';
 import 'usage.dart';

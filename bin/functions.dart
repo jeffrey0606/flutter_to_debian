@@ -11,7 +11,7 @@ class FlutterToDebian {
   String flutterArch = 'x64';
   bool isNonInteractive = false;
   String execFieldCodes = '';
-  String base = "/usr/local/lib";
+  String base = "opt";
   DebianControl debianControl = DebianControl(package: '');
 
   String execOutDirPath = 'build/linux/x64/release/debian';
@@ -222,9 +222,9 @@ fi
     // cp -R <source_folder>/* <destination_folder>
 
     final ProcessResult result = await Process.run(
-      "cp",
+      'cp',
       [
-        "-R",
+        '-R',
         getBuildBundlePath(),
         Vars.pathToFinalAppLocation,
       ],
