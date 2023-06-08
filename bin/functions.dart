@@ -265,14 +265,62 @@ fi
     }
   }
 
+  String getMimeType(FileSystemEntity entity) {
+    final String fileName = path.basename(entity.path);
+    return mime(fileName) ?? path.extension(entity.path);
+  }
+
+  Future<void> createDesktopDataFiles(Directory gui) async {
+    if (!await gui.exists()) await gui.create(recursive: true);
+
+    final files = gui.listSync();
+    final mimeTypes = files.map((file) => getMimeType(file));
+    if (!mimeTypes.any((element) => element.contains('desktop'))) {
+      print(".desktop file not found, creating...");
+      final appName = appExecutableName.replaceAll('_', ' ');
+      final contents = """
+[Desktop Entry]
+Version=${debianControl.version}
+Name=$appName
+GenericName=$appName
+Comment=${debianControl.description}
+Terminal=false
+Type=Application
+Categories=Utility
+Keywords=Flutter;
+Icon=${appExecutableName}
+""";
+      await File(
+        path.join(
+          gui.path,
+          '$appExecutableName.desktop',
+        ),
+      ).writeAsString(contents);
+    }
+
+    if (!mimeTypes.any((element) => element.contains('image'))) {
+      print("Launcher icon not found, creating...");
+      final defaultLauncherImg =
+          'https://storage.googleapis.com/cms-storage-bucket/4fd5520fe28ebf839174.svg';
+      final request = await HttpClient().getUrl(Uri.parse(defaultLauncherImg));
+      final response = await request.close();
+      await response.pipe(File(path.join(
+        gui.path,
+        '$appExecutableName.svg',
+      )).openWrite());
+    }
+  }
+
   Future<void> addDesktopDataFiles(String package) async {
     Directory gui = Directory("debian/gui/");
-    if (!await gui.exists()) await gui.create(recursive: true);
+
+    await createDesktopDataFiles(gui);
+
     late String desktopFileName;
     String desktop = "";
     for (var data in gui.listSync()) {
       final String fileName = path.basename(data.path);
-      final String mimeType = mime(fileName) ?? path.extension(data.path);
+      final mimeType = getMimeType(data);
       // print("file : $fileName | mimeType: $mimeType");
       if (mimeType.contains("image")) {
         if (desktop.isNotEmpty) {
