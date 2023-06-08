@@ -1,16 +1,28 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 
-import 'usage.dart';
+const optExcludedLibs = 'excluded-libraries';
+const optExcludedPackages = 'excluded-libraries';
 
 /// Finds the dependencies of some library files.
 Future<bool> dependencies(List<String> arguments) async {
+  final parser = ArgParser()
+    ..addOption(optExcludedLibs)
+    ..addOption(optExcludedPackages);
+
+  ArgResults argResults = parser.parse(arguments);
+  final restArgs = argResults.rest;
+
   bool rc = false;
   final checker = DependencyFinder();
-  if (await checker.prepare(arguments)) {
-    final files = await checker.findFiles(arguments);
+  if (await checker.prepare(
+    excludedLibs: argResults[optExcludedLibs],
+    excludedPackages: argResults[optExcludedPackages],
+  )) {
+    final files = await checker.findFiles(restArgs);
     rc = await checker.detect(files);
   }
   return rc;
@@ -155,7 +167,7 @@ class DependencyFinder {
           libFiles.add(package);
         }
       }
-      if (++ix % 10 == 0 && ix > 1){
+      if (++ix % 10 == 0 && ix > 1) {
         log('${ix} of ${lines.length} lines processed...');
       }
     }
@@ -166,10 +178,13 @@ class DependencyFinder {
     print(message);
   }
 
-  /// Fetches the needed info of  the yaml file and the program [arguments].
+  /// Fetches the needed info of the yaml file and the program [arguments].
   ///
   /// Returns false on error.
-  Future<bool> prepare(List<String> arguments) async {
+  Future<bool> prepare({
+    String? excludedLibs,
+    String? excludedPackages,
+  }) async {
     bool rc = true;
     File yaml = File("debian/debian.yaml");
 
@@ -181,7 +196,7 @@ class DependencyFinder {
             preferredArchitecture = debianYaml['control']['Architecture'];
           }
           if (debianYaml['control'].containsKey('Package')) {
-            excludedPackages.add(debianYaml['control']['Package']);
+            this.excludedPackages.add(debianYaml['control']['Package']);
           }
         }
         if (preferredArchitecture != 'amd64') {
@@ -191,21 +206,9 @@ class DependencyFinder {
         rethrow;
       }
     }
-    for (var arg in arguments) {
-      if (arg.startsWith('--')) {
-        final parts = splitOption(arg, dependencyOptions);
-        if (parts == null) {
-          usage('unknown option $arg\nKnown: ${dependencyOptions.join(' ')}');
-          rc = false;
-          break;
-        }
-        if (parts[0] == 'excluded-libraries') {
-          excludedLibs = RegExp(parts[1]);
-        } else if (parts[0] == 'excluded-packages') {
-          excludedPackages = parts[1].split(',');
-        }
-      }
-    }
+    if (excludedLibs != null) this.excludedLibs = RegExp(excludedLibs);
+    if (excludedPackages != null)
+      this.excludedPackages = excludedPackages.split(',');
     return rc;
   }
 
@@ -221,7 +224,7 @@ class DependencyFinder {
     final count = rc.length;
     int ix = 0;
     for (var package in packages) {
-      if (! excludedPackages.contains(package.split(':')[0])) {
+      if (!excludedPackages.contains(package.split(':')[0])) {
         final lines = await executeResult('apt-cache', ['show', package]);
         for (var line in lines) {
           if (line.startsWith('Depends:')) {
@@ -234,55 +237,13 @@ class DependencyFinder {
           }
         }
       }
-      if (++ix % 10 == 0){
+      if (++ix % 10 == 0) {
         log('$ix of ${packages.length} packages processed...');
       }
     }
     final count2 = rc.length;
     if (count2 < count) {
       log('Packages reduced from $count to $count2');
-    }
-    return rc;
-  }
-
-  /// Splits a given [argument] into the option name and the option value.
-  ///
-  /// [options] is the list of valid options, e.g. ['exclude-libraries', 'verbose']
-  /// The option in the argument may be abbreviated: 'excl-lib' will be detected
-  /// as exclude-libraries.
-  /// Returns null on an unknown option.
-  List<String>? splitOption(String argument, List<String> options) {
-    List<String>? rc;
-    // Remove the '--':
-    argument = argument.substring(2);
-    final partArguments = argument.split('=');
-    String argValue;
-    switch (partArguments.length) {
-      case 1:
-        argValue = '';
-        break;
-      case 2:
-        argValue = partArguments[1];
-        break;
-      default:
-        argValue = partArguments.sublist(1).join('=');
-        break;
-    }
-    final nameArguments = partArguments[0].split('-');
-    for (var opt in options) {
-      final partOptions = opt.split('-');
-      if (partOptions.length == nameArguments.length) {
-        bool found = true;
-        for (var ix = 0; ix < nameArguments.length; ix++) {
-          if (!partOptions[ix].startsWith(nameArguments[ix])) {
-            found = false;
-          }
-        }
-        if (found) {
-          rc = [opt, argValue];
-          break;
-        }
-      }
     }
     return rc;
   }

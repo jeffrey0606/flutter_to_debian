@@ -5,10 +5,10 @@ packages:
     dependency: "direct main"
     description:
       name: args
-      sha256: "0bd9a99b6eb96f07af141f0eb53eace8983e8e5aa5de59777aca31684680ef22"
+      sha256: eef6c46b622e0494a36c5a12d10d77fb4e855501a91c1b9ef9339326e58f0596
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.4.2"
   charcode:
     dependency: transitive
     description:
@@ -82,4 +82,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.15.0 <4.0.0"
+  dart: ">=2.19.0 <4.0.0"

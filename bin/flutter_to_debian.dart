@@ -1,17 +1,35 @@
 import 'dart:io';
 
-import 'vars.dart';
+import 'package:args/args.dart';
+
 import 'dependencies.dart';
 import 'usage.dart';
+import 'vars.dart';
+
+const cmdDependencies = 'dependencies';
+const cmdHelp = 'help';
+const cmdCreate = 'create';
+const cmdBuild = 'build';
 
 void main(List<String> arguments) async {
   exitCode = 0;
-  final mode = arguments.isNotEmpty ? arguments[0] : 'create';
-  if ("dependencies".startsWith(mode)) {
-    await dependencies(arguments.sublist(1));
-  } else if ("help".startsWith(mode)) {
+
+  final parser = ArgParser()
+    ..addCommand(cmdDependencies)
+    ..addCommand(cmdHelp)
+    ..addCommand(cmdCreate)
+    ..addCommand(cmdBuild);
+
+  ArgResults argResults = parser.parse(arguments);
+  final restArgs = argResults.rest;
+
+  if (argResults.command?.name == cmdDependencies) {
+    await dependencies(restArgs);
+  } else if (argResults.command?.name == cmdHelp) {
     usage(null);
-  } else if ("create".startsWith(mode)) {
+  } else if (argResults.command == null ||
+      argResults.command?.name == cmdBuild ||
+      argResults.command?.name == cmdCreate) {
     stdout.write("\nchecking for debian 📦 in root project...");
     try {
       final flutterToDebian = await Vars.parseDebianYaml();
@@ -32,6 +50,6 @@ void main(List<String> arguments) async {
       rethrow;
     }
   } else {
-    usage('unknown mode: $mode');
+    usage('Unknown arguments: $restArgs');
   }
 }

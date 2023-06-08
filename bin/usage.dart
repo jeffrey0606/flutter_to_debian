@@ -7,7 +7,9 @@ void usage(String? message){
   help
     Print this usage.
   create
-    Creates a Debian package file *.deb. This is the default mode.
+    Creates a folder and template files for the Debian package.
+  build
+    Build a Debian package file *.deb. This is the default mode.
   dependencies [<opts>] [<file1> [ <file2>...]]
     Detects the dependencies of a amount of library files.
     <fileX> can be a file or a directory.
