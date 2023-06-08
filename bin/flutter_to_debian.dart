@@ -37,14 +37,15 @@ void main(List<String> arguments) async {
         flutterToDebian = await Vars.parsePubspecYaml();
         if (flutterToDebian != null) {
           final deps = await DependencyFinder().run();
-          flutterToDebian.debianControl.copyWith(
+          flutterToDebian.debianControl =
+              flutterToDebian.debianControl.copyWith(
             depends: deps.join(','),
           );
         }
       }
 
       if (flutterToDebian == null) {
-        throw Exception("Couldn't find debian/debian.yaml or puspec.yaml");
+        throw Exception("Couldn't find debian/debian.yaml or pubspec.yaml");
       }
 
       if (argResults.command != null) {
