@@ -17,7 +17,7 @@ class DebianControl {
     required this.package,
     this.version = '0.0.1',
     this.debArch = 'amd64',
-    this.maintainer = '',
+    this.maintainer = 'unknown',
     this.description = '',
     this.priority = 'optional',
     this.depends = '',
