@@ -15,6 +15,7 @@ class FlutterToDebian {
   bool isNonInteractive = false;
   String execFieldCodes = '';
   String base = "opt";
+  Directory gui = Directory('debian/gui/');
   DebianControl debianControl = DebianControl(package: '');
 
   String execOutDirPath = 'build/linux/x64/release/debian';
@@ -277,13 +278,14 @@ fi
     return mime(fileName) ?? path.extension(entity.path);
   }
 
-  Future<void> createDesktopDataFiles(Directory gui) async {
+  Future<void> createDesktopDataFiles({bool isOverride = false}) async {
     if (!await gui.exists()) await gui.create(recursive: true);
 
     final files = gui.listSync();
     final mimeTypes = files.map((file) => getMimeType(file));
-    if (!mimeTypes.any((element) => element.contains('desktop'))) {
-      print(".desktop file not found, creating...");
+    if (isOverride ||
+        !mimeTypes.any((element) => element.contains('desktop'))) {
+      print("Desktop file missing or overriding, creating...");
       final appName = appExecutableName.replaceAll('_', ' ');
       final contents = """
 [Desktop Entry]
@@ -305,8 +307,8 @@ Icon=${appExecutableName}
       ).writeAsString(contents);
     }
 
-    if (!mimeTypes.any((element) => element.contains('image'))) {
-      print("Launcher icon not found, creating...");
+    if (isOverride || !mimeTypes.any((element) => element.contains('image'))) {
+      print("Launcher icon missing or overriding, creating...");
       final defaultLauncherImg =
           'https://storage.googleapis.com/cms-storage-bucket/4fd5520fe28ebf839174.svg';
       final request = await HttpClient().getUrl(Uri.parse(defaultLauncherImg));
@@ -319,9 +321,7 @@ Icon=${appExecutableName}
   }
 
   Future<void> addDesktopDataFiles(String package) async {
-    Directory gui = Directory("debian/gui/");
-
-    await createDesktopDataFiles(gui);
+    await createDesktopDataFiles();
 
     late String desktopFileName;
     String desktop = "";

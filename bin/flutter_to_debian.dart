@@ -46,6 +46,11 @@ void main(List<String> arguments) async {
       stdout.writeln("  ✅\n");
       stdout.writeln("start building debian package... ♻️  ♻️  ♻️\n");
       try {
+        if (argResults.command?.name == cmdCreate) {
+          await flutterToDebian.createDesktopDataFiles(isOverride: true);
+          return;
+        }
+
         final String execPath = await flutterToDebian.build();
 
         stdout.writeln("🔥🔥🔥 (debian 📦) build done successfully  ✅\n");
