@@ -25,7 +25,7 @@ void main(List<String> arguments) async {
   if (argResults.command?.name == cmdDependencies) {
     await dependencies(restArgs);
   } else if (argResults.command?.name == cmdHelp) {
-    usage(null);
+    usage(null); // TODO: use built in help function from ArgParser
   } else if (argResults.command == null ||
       argResults.command?.name == cmdBuild ||
       argResults.command?.name == cmdCreate) {
