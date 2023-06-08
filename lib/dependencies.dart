@@ -5,15 +5,10 @@ import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 
 const optExcludedLibs = 'excluded-libraries';
-const optExcludedPackages = 'excluded-libraries';
+const optExcludedPackages = 'excluded-packages';
 
 /// Finds the dependencies of some library files.
-Future<bool> dependencies(List<String> arguments) async {
-  final parser = ArgParser()
-    ..addOption(optExcludedLibs)
-    ..addOption(optExcludedPackages);
-
-  ArgResults argResults = parser.parse(arguments);
+Future<bool> dependencies(ArgResults argResults) async {
   final restArgs = argResults.rest;
 
   bool rc = false;
@@ -31,12 +26,17 @@ Future<bool> dependencies(List<String> arguments) async {
 /// A manager for detecting library dependencies in a Debian environment.
 class DependencyFinder {
   final libDirectory = './build/linux/x64/release/bundle/lib';
-  final dependencyOptions = ['excluded-libraries', 'excluded-packages'];
   String preferredArchitecture = 'amd64';
   final libFiles = <String>{};
   RegExp? excludedArchitecture;
   RegExp? excludedLibs;
   List<String> excludedPackages = [];
+
+  static ArgParser getArgParser() {
+    return ArgParser()
+      ..addOption(optExcludedLibs)
+      ..addOption(optExcludedPackages);
+  }
 
   /// Detects the dependencies of a list of [files].
   Future<bool> detect(List<String> files) async {

@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:flutter_to_debian/debian_control.dart';
 import 'package:flutter_to_debian/vars.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
+
+const optBuildVersion = 'build-version';
 
 class FlutterToDebian {
   String appExecutableName = '';
@@ -15,6 +18,10 @@ class FlutterToDebian {
   DebianControl debianControl = DebianControl(package: '');
 
   String execOutDirPath = 'build/linux/x64/release/debian';
+
+  static ArgParser getArgParser() {
+    return ArgParser()..addOption(optBuildVersion);
+  }
 
   FlutterToDebian.fromPubspec(YamlMap yamlMap) {
     appExecutableName = yamlMap['name'] as String;
