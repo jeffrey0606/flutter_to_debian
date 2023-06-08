@@ -8,19 +8,15 @@ const optExcludedLibs = 'excluded-libraries';
 const optExcludedPackages = 'excluded-packages';
 
 /// Finds the dependencies of some library files.
-Future<bool> dependencies(ArgResults argResults) async {
+Future<List<String>> dependencies(ArgResults argResults) async {
   final restArgs = argResults.rest;
 
-  bool rc = false;
   final checker = DependencyFinder();
-  if (await checker.prepare(
+  return checker.run(
     excludedLibs: argResults[optExcludedLibs],
     excludedPackages: argResults[optExcludedPackages],
-  )) {
-    final files = await checker.findFiles(restArgs);
-    rc = await checker.detect(files);
-  }
-  return rc;
+    fileArgs: restArgs,
+  );
 }
 
 /// A manager for detecting library dependencies in a Debian environment.
@@ -38,15 +34,28 @@ class DependencyFinder {
       ..addOption(optExcludedPackages);
   }
 
+  Future<List<String>> run({
+    String? excludedLibs,
+    String? excludedPackages,
+    List<String> fileArgs = const [],
+  }) async {
+    if (await prepare(
+      excludedLibs: excludedLibs,
+      excludedPackages: excludedPackages,
+    )) {
+      final files = await checker.findFiles(fileArgs);
+      return await checker.detect(files);
+    }
+    return [];
+  }
+
   /// Detects the dependencies of a list of [files].
-  Future<bool> detect(List<String> files) async {
-    var rc = false;
+  Future<List<String>> detect(List<String> files) async {
     log('Inspecting ${files.length} file(s): be patient');
     for (var file in files) {
       await getDependencies(file);
     }
-    await findPackages();
-    return rc;
+    return await findPackages();
   }
 
   /// Logs an error [message].
@@ -99,7 +108,7 @@ class DependencyFinder {
   }
 
   /// Finds the packages referred from the files in [libFiles].
-  Future<void> findPackages() async {
+  Future<List<String>> findPackages() async {
     final packages = <String>{};
     RegExp regExp = RegExp(r'^([^:]+(:([^:]+))?):\s');
     for (var file in libFiles) {
@@ -141,14 +150,19 @@ class DependencyFinder {
     }
     if (packages.isEmpty) {
       log('No dependencies found');
+      return [];
     } else {
       final packages3 = await reduceDoubles(packages);
-      final sorted = packages3.toList();
+      var sorted = packages3.toList();
       sorted.sort();
+      sorted = sorted
+          .map((e) => e.replaceFirst(':$preferredArchitecture', ''))
+          .toList();
       log('Dependencies: ${sorted.length}');
       for (var package in sorted) {
-        log(package.replaceFirst(':$preferredArchitecture', ''));
+        log(package);
       }
+      return sorted;
     }
   }
 

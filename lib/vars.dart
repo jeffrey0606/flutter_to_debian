@@ -14,7 +14,7 @@ class Vars {
     'k'
   ];
 
-  static Future<FlutterToDebian> parseDebianYaml() async {
+  static Future<FlutterToDebian?> parseDebianYaml() async {
     File yaml = File("debian/debian.yaml");
     if (!(await yaml.exists())) {
       yaml = File("debian/debian.yml");
@@ -28,8 +28,14 @@ class Vars {
         rethrow;
       }
     }
+    return null;
+  }
 
+  static Future<FlutterToDebian?> parsePubspecYaml() async {
     File pubspec = File("pubspec.yaml");
+    if (!(await pubspec.exists())) {
+      pubspec = File("pubspec.yml");
+    }
 
     if (await pubspec.exists()) {
       try {
@@ -39,8 +45,7 @@ class Vars {
         rethrow;
       }
     }
-
-    throw Exception("Couldn't find debian/debian.yaml or puspec.yaml");
+    return null;
   }
 
   static late String pathToIcons;

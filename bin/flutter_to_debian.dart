@@ -32,7 +32,20 @@ void main(List<String> arguments) async {
       argResults.command?.name == cmdCreate) {
     stdout.write("\nchecking for debian 📦 in root project...");
     try {
-      final flutterToDebian = await Vars.parseDebianYaml();
+      var flutterToDebian = await Vars.parseDebianYaml();
+      if (flutterToDebian == null) {
+        flutterToDebian = await Vars.parsePubspecYaml();
+        if (flutterToDebian != null) {
+          final deps = await DependencyFinder().run();
+          flutterToDebian.debianControl.copyWith(
+            depends: deps.join(','),
+          );
+        }
+      }
+
+      if (flutterToDebian == null) {
+        throw Exception("Couldn't find debian/debian.yaml or puspec.yaml");
+      }
 
       if (argResults.command != null) {
         // Apply build args
