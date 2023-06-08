@@ -9,6 +9,7 @@ const cmdDependencies = 'dependencies';
 const cmdHelp = 'help';
 const cmdCreate = 'create';
 const cmdBuild = 'build';
+const optBuildVersion = 'build-version';
 
 void main(List<String> arguments) async {
   exitCode = 0;
@@ -32,11 +33,19 @@ void main(List<String> arguments) async {
     stdout.write("\nchecking for debian 📦 in root project...");
     try {
       final flutterToDebian = await Vars.parseDebianYaml();
+      
+      // Apply build args
+      final buildParser = ArgParser()..addOption(optBuildVersion);
+      ArgResults buildArgResults = buildParser.parse(arguments);
+      // final buildRestArgs = buildArgResults.rest;
+      flutterToDebian.debianControl = flutterToDebian.debianControl.copyWith(
+        version: buildArgResults[optBuildVersion],
+      );
 
       stdout.writeln("  ✅\n");
       stdout.writeln("start building debian package... ♻️  ♻️  ♻️\n");
       try {
-        final String execPath = await flutterToDebian.build(arguments);
+        final String execPath = await flutterToDebian.build();
 
         stdout.writeln("🔥🔥🔥 (debian 📦) build done successfully  ✅\n");
         stdout.writeln("😎 find your .deb at\n$execPath");

@@ -54,7 +54,7 @@ class FlutterToDebian {
     }
   }
 
-  Future<String> build(List<String> args) async {
+  Future<String> build() async {
     final Directory tempDir = Directory(
       path.join(
         Directory.systemTemp.path,
