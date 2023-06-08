@@ -7,10 +7,6 @@ repository: https://github.com/jeffrey0606/flutter_to_debian
 environment:
   sdk: '>=2.15.0 <3.0.0'
 
-
-executables:
-  flutter_to_debian: main
-
 dependencies:
   args: ^2.3.0
   mime_type: ^1.0.0
