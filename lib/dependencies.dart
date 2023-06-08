@@ -43,8 +43,8 @@ class DependencyFinder {
       excludedLibs: excludedLibs,
       excludedPackages: excludedPackages,
     )) {
-      final files = await checker.findFiles(fileArgs);
-      return await checker.detect(files);
+      final files = await findFiles(fileArgs);
+      return await detect(files);
     }
     return [];
   }
@@ -182,7 +182,7 @@ class DependencyFinder {
         }
       }
       if (++ix % 10 == 0 && ix > 1) {
-        log('${ix} of ${lines.length} lines processed...\r');
+        logStatus('${ix} of ${lines.length} lines processed...');
       }
     }
   }
@@ -190,6 +190,10 @@ class DependencyFinder {
   /// Logs a [message].
   void log(String message) {
     print(message);
+  }
+
+  void logStatus(String message) {
+    stdout.write(message + '\r');
   }
 
   /// Fetches the needed info of the yaml file and the program [arguments].
@@ -252,7 +256,7 @@ class DependencyFinder {
         }
       }
       if (++ix % 10 == 0) {
-        log('$ix of ${packages.length} packages processed...\r');
+        logStatus('$ix of ${packages.length} packages processed...');
       }
     }
     final count2 = rc.length;
