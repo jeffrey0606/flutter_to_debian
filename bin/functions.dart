@@ -10,15 +10,16 @@ class FlutterToDebian {
   String appExecutableName = '';
   String flutterArch = 'x64';
   bool isNonInteractive = false;
-  String execFieldCodes = "";
+  String execFieldCodes = '';
   String base = "/usr/local/lib";
   DebianControl debianControl = DebianControl(package: '');
 
   String execOutDirPath = 'build/linux/x64/release/debian';
 
   FlutterToDebian.fromPubspec(YamlMap yamlMap) {
+    appExecutableName = yamlMap['name'] as String;
     debianControl = debianControl.copyWith(
-      package: yamlMap['name'] as String,
+      package: (yamlMap['name'] as String).replaceAll('_', '-'),
       version: ((yamlMap['version'] ?? '') as String).split('+').first,
       description: yamlMap['description'] as String?,
       maintainer: (yamlMap['authors'] as List<String>?)?[0],
