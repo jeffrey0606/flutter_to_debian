@@ -1,40 +1,61 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 
-import 'usage.dart';
+const optExcludedLibs = 'excluded-libraries';
+const optExcludedPackages = 'excluded-packages';
 
 /// Finds the dependencies of some library files.
-Future<bool> dependencies(List<String> arguments) async {
-  bool rc = false;
+Future<List<String>> dependencies(ArgResults argResults) async {
+  final restArgs = argResults.rest;
+
   final checker = DependencyFinder();
-  if (await checker.prepare(arguments)) {
-    final files = await checker.findFiles(arguments);
-    rc = await checker.detect(files);
-  }
-  return rc;
+  return checker.run(
+    excludedLibs: argResults[optExcludedLibs],
+    excludedPackages: argResults[optExcludedPackages],
+    fileArgs: restArgs,
+  );
 }
 
 /// A manager for detecting library dependencies in a Debian environment.
 class DependencyFinder {
   final libDirectory = './build/linux/x64/release/bundle/lib';
-  final dependencyOptions = ['excluded-libraries', 'excluded-packages'];
   String preferredArchitecture = 'amd64';
   final libFiles = <String>{};
   RegExp? excludedArchitecture;
   RegExp? excludedLibs;
   List<String> excludedPackages = [];
 
+  static ArgParser getArgParser() {
+    return ArgParser()
+      ..addOption(optExcludedLibs)
+      ..addOption(optExcludedPackages);
+  }
+
+  Future<List<String>> run({
+    String? excludedLibs,
+    String? excludedPackages,
+    List<String> fileArgs = const [],
+  }) async {
+    if (await prepare(
+      excludedLibs: excludedLibs,
+      excludedPackages: excludedPackages,
+    )) {
+      final files = await findFiles(fileArgs);
+      return await detect(files);
+    }
+    return [];
+  }
+
   /// Detects the dependencies of a list of [files].
-  Future<bool> detect(List<String> files) async {
-    var rc = false;
+  Future<List<String>> detect(List<String> files) async {
     log('Inspecting ${files.length} file(s): be patient');
     for (var file in files) {
       await getDependencies(file);
     }
-    await findPackages();
-    return rc;
+    return await findPackages();
   }
 
   /// Logs an error [message].
@@ -87,7 +108,7 @@ class DependencyFinder {
   }
 
   /// Finds the packages referred from the files in [libFiles].
-  Future<void> findPackages() async {
+  Future<List<String>> findPackages() async {
     final packages = <String>{};
     RegExp regExp = RegExp(r'^([^:]+(:([^:]+))?):\s');
     for (var file in libFiles) {
@@ -129,14 +150,19 @@ class DependencyFinder {
     }
     if (packages.isEmpty) {
       log('No dependencies found');
+      return [];
     } else {
       final packages3 = await reduceDoubles(packages);
-      final sorted = packages3.toList();
+      var sorted = packages3.toList();
       sorted.sort();
+      sorted = sorted
+          .map((e) => e.replaceFirst(':$preferredArchitecture', ''))
+          .toList();
       log('Dependencies: ${sorted.length}');
       for (var package in sorted) {
-        log(package.replaceFirst(':$preferredArchitecture', ''));
+        log(package);
       }
+      return sorted;
     }
   }
 
@@ -155,8 +181,8 @@ class DependencyFinder {
           libFiles.add(package);
         }
       }
-      if (++ix % 10 == 0 && ix > 1){
-        log('${ix} of ${lines.length} lines processed...');
+      if (++ix % 10 == 0 && ix > 1) {
+        logStatus('${ix} of ${lines.length} lines processed...');
       }
     }
   }
@@ -166,10 +192,17 @@ class DependencyFinder {
     print(message);
   }
 
-  /// Fetches the needed info of  the yaml file and the program [arguments].
+  void logStatus(String message) {
+    stdout.write(message + '\r');
+  }
+
+  /// Fetches the needed info of the yaml file and the program [arguments].
   ///
   /// Returns false on error.
-  Future<bool> prepare(List<String> arguments) async {
+  Future<bool> prepare({
+    String? excludedLibs,
+    String? excludedPackages,
+  }) async {
     bool rc = true;
     File yaml = File("debian/debian.yaml");
 
@@ -181,7 +214,7 @@ class DependencyFinder {
             preferredArchitecture = debianYaml['control']['Architecture'];
           }
           if (debianYaml['control'].containsKey('Package')) {
-            excludedPackages.add(debianYaml['control']['Package']);
+            this.excludedPackages.add(debianYaml['control']['Package']);
           }
         }
         if (preferredArchitecture != 'amd64') {
@@ -191,21 +224,9 @@ class DependencyFinder {
         rethrow;
       }
     }
-    for (var arg in arguments) {
-      if (arg.startsWith('--')) {
-        final parts = splitOption(arg, dependencyOptions);
-        if (parts == null) {
-          usage('unknown option $arg\nKnown: ${dependencyOptions.join(' ')}');
-          rc = false;
-          break;
-        }
-        if (parts[0] == 'excluded-libraries') {
-          excludedLibs = RegExp(parts[1]);
-        } else if (parts[0] == 'excluded-packages') {
-          excludedPackages = parts[1].split(',');
-        }
-      }
-    }
+    if (excludedLibs != null) this.excludedLibs = RegExp(excludedLibs);
+    if (excludedPackages != null)
+      this.excludedPackages = excludedPackages.split(',');
     return rc;
   }
 
@@ -221,7 +242,7 @@ class DependencyFinder {
     final count = rc.length;
     int ix = 0;
     for (var package in packages) {
-      if (! excludedPackages.contains(package.split(':')[0])) {
+      if (!excludedPackages.contains(package.split(':')[0])) {
         final lines = await executeResult('apt-cache', ['show', package]);
         for (var line in lines) {
           if (line.startsWith('Depends:')) {
@@ -234,55 +255,13 @@ class DependencyFinder {
           }
         }
       }
-      if (++ix % 10 == 0){
-        log('$ix of ${packages.length} packages processed...');
+      if (++ix % 10 == 0) {
+        logStatus('$ix of ${packages.length} packages processed...');
       }
     }
     final count2 = rc.length;
     if (count2 < count) {
       log('Packages reduced from $count to $count2');
-    }
-    return rc;
-  }
-
-  /// Splits a given [argument] into the option name and the option value.
-  ///
-  /// [options] is the list of valid options, e.g. ['exclude-libraries', 'verbose']
-  /// The option in the argument may be abbreviated: 'excl-lib' will be detected
-  /// as exclude-libraries.
-  /// Returns null on an unknown option.
-  List<String>? splitOption(String argument, List<String> options) {
-    List<String>? rc;
-    // Remove the '--':
-    argument = argument.substring(2);
-    final partArguments = argument.split('=');
-    String argValue;
-    switch (partArguments.length) {
-      case 1:
-        argValue = '';
-        break;
-      case 2:
-        argValue = partArguments[1];
-        break;
-      default:
-        argValue = partArguments.sublist(1).join('=');
-        break;
-    }
-    final nameArguments = partArguments[0].split('-');
-    for (var opt in options) {
-      final partOptions = opt.split('-');
-      if (partOptions.length == nameArguments.length) {
-        bool found = true;
-        for (var ix = 0; ix < nameArguments.length; ix++) {
-          if (!partOptions[ix].startsWith(nameArguments[ix])) {
-            found = false;
-          }
-        }
-        if (found) {
-          rc = [opt, argValue];
-          break;
-        }
-      }
     }
     return rc;
   }

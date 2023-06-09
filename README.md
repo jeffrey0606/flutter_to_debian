@@ -20,10 +20,9 @@ flutter_app:
   nonInteractive: false
 
 control:
-  Package: Mega Cool App
+  Package: mega-cool-app
   Version: 1.0.0
   Architecture: amd64
-  Essential: no
   Priority: optional
   Depends:
   Maintainer:
@@ -158,7 +157,9 @@ Usage: flutter_to_debian [<mode> [<options>] ]
   help
     Print this usage.
   create
-    Creates a Debian package file *.deb. This is the default mode.
+    Creates a folder and template files for the Debian package.
+  build
+    Build a Debian package file *.deb. This is the default mode.
   dependencies [<opts>] [<file1> [ <file2>...]]
     Detects the dependencies of a amount of library files.
     <fileX> can be a file or a directory.

@@ -1,13 +1,15 @@
 /// Writes a usage notice.
 ///
 /// [message] is an error message.
-void usage(String? message){
+void usage(String? message) {
   print('''Usage: flutter_to_debian [<mode> [<options>] ]
 <mode>:
   help
     Print this usage.
   create
-    Creates a Debian package file *.deb. This is the default mode.
+    Creates a folder and template files for the Debian package.
+  build
+    Build a Debian package file *.deb. This is the default mode.
   dependencies [<opts>] [<file1> [ <file2>...]]
     Detects the dependencies of a amount of library files.
     <fileX> can be a file or a directory.
@@ -32,7 +34,7 @@ flutter_to_debian dependencies --excluded-packages=lintian,my-project prod/libs
   The packages lintian and my-project will be excluded from processing.
 Note: modes and options can be abbreviated: --ex-pack means --excluded-packages
 ''');
-  if (message != null){
+  if (message != null) {
     print('+++ $message');
   }
 }
