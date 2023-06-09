@@ -28,6 +28,9 @@ control:
   Depends:
   Maintainer:
   Description: Mega Cool App that does everything!
+  
+#options:
+#  exec_out_dir: build/linux/x64/release/debian/
 ```
 The following sections explain the various pieces of the YAML file.
 

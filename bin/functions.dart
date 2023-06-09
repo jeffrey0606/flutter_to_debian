@@ -77,7 +77,10 @@ Future<String> copyBuildToRootProject(
   String tempDir,
   String newPackageName,
 ) async {
-  Directory finalExecDir = Directory("debian/packages");
+  final execOutDirPath = (Vars.debianYaml.containsKey('options') && Vars.debianYaml['options'].containsKey('exec_out_dir'))
+      ? Vars.debianYaml['options']['exec_out_dir']
+      : 'debian/packages';
+  Directory finalExecDir = Directory(execOutDirPath);
   if (!(await finalExecDir.exists())) {
     await finalExecDir.create(
       recursive: true,
