@@ -8,7 +8,7 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 executables:
-  flutter_to_debian: main
+  flutter_to_debian:
 
 dependencies:
   args: ^2.4.2
