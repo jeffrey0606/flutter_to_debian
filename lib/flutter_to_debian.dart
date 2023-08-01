@@ -55,6 +55,7 @@ class FlutterToDebian {
         debArch: control["Architecture"],
         maintainer: control["Maintainer"],
         description: control["Description"],
+        depends: control["Depends"],
       );
     }
     if (yamlMap.containsKey('options')) {
