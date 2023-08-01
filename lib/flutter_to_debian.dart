@@ -78,7 +78,7 @@ class FlutterToDebian {
     }
 
     final String newPackageName =
-        "${debianControl.package}_${debianControl.version}_${debianControl.debArch}";
+        "${debianControl.package}_${debianControl.debArch}";
     final Directory newDebPackageDir = Directory(
       path.join(
         tempDir.path,
