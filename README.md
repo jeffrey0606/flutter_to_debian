@@ -34,7 +34,7 @@ control:
 The following sections explain the various pieces of the YAML file.
 
 ## Flutter app
-This section of the **debain.yaml** file defines the application that will be packaged into a debian.
+This section of the **debian.yaml** file defines the application that will be packaged into a debian.
 ```yaml
 flutter_app: 
   command: mega_cool_app
