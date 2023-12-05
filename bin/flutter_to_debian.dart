@@ -4,7 +4,6 @@ import 'package:args/args.dart';
 import 'package:flutter_to_debian/dependencies.dart';
 import 'package:flutter_to_debian/flutter_to_debian.dart';
 import 'package:flutter_to_debian/usage.dart';
-import 'package:flutter_to_debian/vars.dart';
 
 const cmdDependencies = 'dependencies';
 const cmdHelp = 'help';
@@ -32,21 +31,7 @@ void main(List<String> arguments) async {
       argResults.command?.name == cmdCreate) {
     stdout.write("\nchecking for debian 📦 in root project...");
     try {
-      var flutterToDebian = await Vars.parseDebianYaml();
-      if (flutterToDebian == null) {
-        flutterToDebian = await Vars.parsePubspecYaml();
-        if (flutterToDebian != null) {
-          final deps = await DependencyFinder().run();
-          flutterToDebian.debianControl =
-              flutterToDebian.debianControl.copyWith(
-            depends: deps.join(','),
-          );
-        }
-      }
-
-      if (flutterToDebian == null) {
-        throw Exception("Couldn't find debian/debian.yaml or pubspec.yaml");
-      }
+      var flutterToDebian = await FlutterToDebian.load();
 
       if (argResults.command != null) {
         // Apply build args

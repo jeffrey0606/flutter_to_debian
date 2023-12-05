@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:flutter_to_debian/debian_control.dart';
+import 'package:flutter_to_debian/dependencies.dart';
 import 'package:flutter_to_debian/vars.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as path;
@@ -22,6 +23,23 @@ class FlutterToDebian {
 
   static ArgParser getArgParser() {
     return ArgParser()..addOption(optBuildVersion);
+  }
+
+  static Future<FlutterToDebian> load() async {
+    var flutterToDebian = await Vars.parseDebianYaml();
+    if (flutterToDebian == null) {
+      flutterToDebian = await Vars.parsePubspecYaml();
+      if (flutterToDebian != null) {
+        final deps = await DependencyFinder().run();
+        flutterToDebian.debianControl = flutterToDebian.debianControl.copyWith(
+          depends: deps.join(','),
+        );
+      }
+    }
+    if (flutterToDebian == null) {
+      throw Exception("Couldn't find debian/debian.yaml or pubspec.yaml");
+    }
+    return flutterToDebian;
   }
 
   FlutterToDebian.fromPubspec(YamlMap yamlMap) {
