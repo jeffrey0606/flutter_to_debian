@@ -1,14 +1,11 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:flutter_to_debian/debian_control.dart';
 import 'package:flutter_to_debian/dependencies.dart';
 import 'package:flutter_to_debian/vars.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
-
-const optBuildVersion = 'build-version';
 
 class FlutterToDebian {
   String appExecutableName = '';
@@ -21,11 +18,44 @@ class FlutterToDebian {
 
   String execOutDirPath = 'build/linux/x64/release/debian';
 
-  static ArgParser getArgParser() {
-    return ArgParser()..addOption(optBuildVersion);
+  static Future<String> runBuild({String? version, String? arch}) async {
+    final flutterToDebian = await FlutterToDebian.fromConfigs();
+
+    if (version != null) {
+      flutterToDebian.debianControl = flutterToDebian.debianControl.copyWith(
+        version: version,
+      );
+    }
+
+    if (arch != null) {
+      flutterToDebian.flutterArch = arch;
+      flutterToDebian.execOutDirPath =
+          flutterToDebian.execOutDirPath.replaceAll('x64', arch);
+    }
+
+    stdout.writeln("start building debian package... ♻️  ♻️  ♻️\n");
+    final String execPath = await flutterToDebian.build();
+
+    stdout.writeln("🔥🔥🔥 (debian 📦) build done successfully  ✅\n");
+    stdout.writeln("😎 find your .deb at\n$execPath");
+    return execPath;
   }
 
-  static Future<FlutterToDebian> load() async {
+  static Future<void> runCreate({String? version}) async {
+    final flutterToDebian = await FlutterToDebian.fromConfigs();
+
+    if (version != null) {
+      flutterToDebian.debianControl = flutterToDebian.debianControl.copyWith(
+        version: version,
+      );
+    }
+
+    await flutterToDebian.createDesktopDataFiles(isOverride: true);
+    stdout.writeln("Successfully created Debian GUI config  ✅\n");
+  }
+
+  static Future<FlutterToDebian> fromConfigs() async {
+    stdout.write("\nchecking for debian 📦 in root project...");
     var flutterToDebian = await Vars.parseDebianYaml();
     if (flutterToDebian == null) {
       flutterToDebian = await Vars.parsePubspecYaml();
@@ -39,6 +69,7 @@ class FlutterToDebian {
     if (flutterToDebian == null) {
       throw Exception("Couldn't find debian/debian.yaml or pubspec.yaml");
     }
+    stdout.writeln("  ✅\n");
     return flutterToDebian;
   }
 

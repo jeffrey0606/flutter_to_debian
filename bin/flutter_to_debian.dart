@@ -14,55 +14,89 @@ void main(List<String> arguments) async {
   exitCode = 0;
 
   final parser = ArgParser()
-    ..addCommand(cmdDependencies, DependencyFinder.getArgParser())
+    ..addCommand(cmdDependencies, DependencyFinderArgParser.createParser())
     ..addCommand(cmdHelp)
-    ..addCommand(cmdCreate, FlutterToDebian.getArgParser())
-    ..addCommand(cmdBuild, FlutterToDebian.getArgParser());
+    ..addCommand(cmdCreate, BuildArgParser.createParser())
+    ..addCommand(cmdBuild, BuildArgParser.createParser());
 
   ArgResults argResults = parser.parse(arguments);
   final restArgs = argResults.rest;
 
-  if (argResults.command?.name == cmdDependencies) {
-    await dependencies(argResults.command!);
-  } else if (argResults.command?.name == cmdHelp) {
-    usage(null); // TODO: use built in help function from ArgParser
-  } else if (argResults.command == null ||
-      argResults.command?.name == cmdBuild ||
-      argResults.command?.name == cmdCreate) {
-    stdout.write("\nchecking for debian 📦 in root project...");
+  final command = argResults.command;
+
+  if (command == null || command.name == cmdBuild) {
     try {
-      var flutterToDebian = await FlutterToDebian.load();
-
-      if (argResults.command != null) {
-        // Apply build args
-        final buildArgResults = argResults.command!;
-        // final buildRestArgs = buildArgResults.rest;
-        flutterToDebian.debianControl = flutterToDebian.debianControl.copyWith(
-          version: buildArgResults[optBuildVersion],
-        );
-      }
-
-      stdout.writeln("  ✅\n");
-      stdout.writeln("start building debian package... ♻️  ♻️  ♻️\n");
-      try {
-        if (argResults.command?.name == cmdCreate) {
-          await flutterToDebian.createDesktopDataFiles(isOverride: true);
-          return;
-        }
-
-        final String execPath = await flutterToDebian.build();
-
-        stdout.writeln("🔥🔥🔥 (debian 📦) build done successfully  ✅\n");
-        stdout.writeln("😎 find your .deb at\n$execPath");
-      } catch (e) {
-        exitCode = 2;
-        rethrow;
-      }
+      await BuildArgParser.run(command);
     } catch (e) {
       exitCode = 2;
       rethrow;
     }
+  } else if (command.name == cmdCreate) {
+    try {
+      await CreateDirsArgParser.run(command);
+    } catch (e) {
+      exitCode = 2;
+      rethrow;
+    }
+  } else if (command.name == cmdDependencies) {
+    await DependencyFinderArgParser.run(command);
+  } else if (command.name == cmdHelp) {
+    usage(null); // TODO: use built in help function from ArgParser
   } else {
     usage('Unknown arguments: $restArgs');
+  }
+}
+
+class BuildArgParser {
+  static const optBuildVersion = 'build-version';
+  static const optArchitecture = 'arch';
+
+  static ArgParser createParser() {
+    return ArgParser()
+      ..addOption(optBuildVersion)
+      ..addOption(optArchitecture);
+  }
+
+  static Future<void> run(ArgResults? argResults) async {
+    await FlutterToDebian.runBuild(
+        version: argResults?[optBuildVersion],
+        arch: argResults?[optArchitecture]);
+  }
+}
+
+class CreateDirsArgParser {
+  static const optBuildVersion = 'build-version';
+
+  static ArgParser createParser() {
+    return ArgParser()..addOption(optBuildVersion);
+  }
+
+  static Future<void> run(ArgResults argResults) async {
+    await FlutterToDebian.runCreate(
+      version: argResults[optBuildVersion],
+    );
+  }
+}
+
+class DependencyFinderArgParser {
+  static const optExcludedLibs = 'excluded-libraries';
+  static const optExcludedPackages = 'excluded-packages';
+
+  static ArgParser createParser() {
+    return ArgParser()
+      ..addOption(optExcludedLibs)
+      ..addOption(optExcludedPackages);
+  }
+
+  /// Finds the dependencies of some library files.
+  static Future<void> run(ArgResults argResults) async {
+    final restArgs = argResults.rest;
+
+    final checker = DependencyFinder();
+    await checker.run(
+      excludedLibs: argResults[optExcludedLibs],
+      excludedPackages: argResults[optExcludedPackages],
+      fileArgs: restArgs,
+    );
   }
 }
