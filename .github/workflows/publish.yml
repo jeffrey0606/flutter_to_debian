@@ -7,9 +7,22 @@ on:
 
 jobs:
   publish:
+    # TODO: Use dart publish reusable workflow, see https://github.com/dart-lang/setup-dart/issues/68
+    # https://github.com/dart-lang/setup-dart/blob/main/.github/workflows/publish.yml
+    name: 'Publish to pub.dev'
+    environment: 'pub.dev'
     permissions:
       id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      environment: 'pub.dev'
-      # working-directory: path/to/package/within/repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Setup Dart SDK with JWT token
+      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
+      - name: Install dependencies
+        run: dart pub get
+      - name: Publish - dry run
+        run: dart pub publish --dry-run
+      # Publishing...
+      - name: Publish to pub.dev
+        run: dart pub publish -f
