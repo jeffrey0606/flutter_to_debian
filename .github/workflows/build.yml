@@ -9,5 +9,3 @@ on:
 jobs:
   call-test:
     uses: ./.github/workflows/test.yml
-    with:
-      upload_pages_artifact: true
