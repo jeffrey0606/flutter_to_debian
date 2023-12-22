@@ -26,6 +26,10 @@ jobs:
           channel: 'stable'
       - name: Activate flutter_to_debian
         run: dart pub global activate --source path ./
+      - name: Install Flutter requirements for Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Example app - Build Debian app
         working-directory: ./example
         run: |
