@@ -24,6 +24,11 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
+      - name: Activate flutter_to_debian
+        run: dart pub global activate --source path ./
       - name: Example app - Build Debian app
         working-directory: ./example
-        run: flutter build linux
+        run: |
+          flutter build linux
+          flutter_to_debian
+          [ -f "build/linux/x64/release/debian/example_1.0.0_amd64.deb" ] && exit 0 || exit 1

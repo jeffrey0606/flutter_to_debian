@@ -11,7 +11,7 @@ This plugin is a tool that builds **debian** package based on the instructions l
 
 # Flutter debian.yaml example
 
-Place the YMAL file in your Flutter project under ****<*project root*>*/debian/debian.yaml***. (And remember the YMAL files are sensitive to white space!) For example:
+Place the YAML file in your Flutter project under ****<*project root*>*/debian/debian.yaml***. (And remember the YAML files are sensitive to white space!) For example:
 ```yaml
 flutter_app: 
   command: mega_cool_app
