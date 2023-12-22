@@ -8,6 +8,6 @@ on:
       - ready_for_review
 
 jobs:
-  call-build-example:
-    uses: ./.github/workflows/build-example.yml
+  call-test:
+    uses: ./.github/workflows/test.yml
     if: ${{ github.event.pull_request.draft == false }}

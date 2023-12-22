@@ -1,4 +1,4 @@
-name: build example
+name: test example
 on:
   workflow_dispatch:
     inputs:

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  call-build-example:
-    uses: ./.github/workflows/build-example.yml
+  call-test:
+    uses: ./.github/workflows/test.yml
     with:
       upload_pages_artifact: true
