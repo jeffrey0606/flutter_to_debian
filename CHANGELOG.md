@@ -33,7 +33,7 @@
 
 ## 1.0.2+1
 
-- add clarity about the Depends attribute in the debain.yaml file
+- add clarity about the Depends attribute in the debian.yaml file
 
 ## 1.0.2
 
