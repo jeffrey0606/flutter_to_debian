@@ -1,23 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
-
-const optExcludedLibs = 'excluded-libraries';
-const optExcludedPackages = 'excluded-packages';
-
-/// Finds the dependencies of some library files.
-Future<List<String>> dependencies(ArgResults argResults) async {
-  final restArgs = argResults.rest;
-
-  final checker = DependencyFinder();
-  return checker.run(
-    excludedLibs: argResults[optExcludedLibs],
-    excludedPackages: argResults[optExcludedPackages],
-    fileArgs: restArgs,
-  );
-}
 
 /// A manager for detecting library dependencies in a Debian environment.
 class DependencyFinder {
@@ -27,12 +11,6 @@ class DependencyFinder {
   RegExp? excludedArchitecture;
   RegExp? excludedLibs;
   List<String> excludedPackages = [];
-
-  static ArgParser getArgParser() {
-    return ArgParser()
-      ..addOption(optExcludedLibs)
-      ..addOption(optExcludedPackages);
-  }
 
   Future<List<String>> run({
     String? excludedLibs,
