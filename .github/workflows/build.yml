@@ -1,0 +1,11 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  call-test:
+    uses: ./.github/workflows/test.yml

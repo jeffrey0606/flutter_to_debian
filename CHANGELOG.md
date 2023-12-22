@@ -1,6 +1,7 @@
 ## 2.0.2
 
 - DOCS: Rework Changelog
+- TEST: Add test environment
 
 ## 2.0.1
 
