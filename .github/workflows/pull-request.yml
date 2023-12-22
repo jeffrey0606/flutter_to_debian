@@ -1,0 +1,13 @@
+name: pull-request
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+jobs:
+  call-build-example:
+    uses: ./.github/workflows/build-example.yml
+    if: ${{ github.event.pull_request.draft == false }}

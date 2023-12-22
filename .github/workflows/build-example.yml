@@ -1,0 +1,29 @@
+name: build example
+on:
+  workflow_dispatch:
+    inputs:
+      flutter_version:
+        description: 'Flutter Version'
+        required: false
+        default: '13.6.x'
+        type: string
+  workflow_call:
+    inputs:
+      flutter_version:
+        required: false
+        default: '13.6.x'
+        type: string
+
+jobs:
+  debian:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
+      - name: Example app - Build Debian app
+        working-directory: ./example
+        run: flutter build linux

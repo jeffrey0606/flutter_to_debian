@@ -1,0 +1,13 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  call-build-example:
+    uses: ./.github/workflows/build-example.yml
+    with:
+      upload_pages_artifact: true
