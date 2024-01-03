@@ -104,6 +104,7 @@ class FlutterToDebian {
         debArch: control["Architecture"],
         maintainer: control["Maintainer"],
         description: control["Description"],
+        depends: control["Depends"],
       );
     }
     if (yamlMap.containsKey('options')) {
@@ -126,7 +127,7 @@ class FlutterToDebian {
     }
 
     final String newPackageName =
-        "${debianControl.package}_${debianControl.version}_${debianControl.debArch}";
+        "${debianControl.package}_${debianControl.debArch}";
     final Directory newDebPackageDir = Directory(
       path.join(
         tempDir.path,
