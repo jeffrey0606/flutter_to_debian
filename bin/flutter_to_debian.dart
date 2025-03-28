@@ -7,6 +7,7 @@ import 'package:flutter_to_debian/usage.dart';
 
 const cmdDependencies = 'dependencies';
 const cmdHelp = 'help';
+const cmdHelpFlag = 'h';
 const cmdCreate = 'create';
 const cmdBuild = 'build';
 
@@ -16,6 +17,7 @@ void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addCommand(cmdDependencies, DependencyFinderArgParser.createParser())
     ..addCommand(cmdHelp)
+    ..addFlag(cmdHelp, abbr: cmdHelpFlag, negatable: false, defaultsTo: false)
     ..addCommand(cmdCreate, BuildArgParser.createParser())
     ..addCommand(cmdBuild, BuildArgParser.createParser());
 
@@ -23,6 +25,11 @@ void main(List<String> arguments) async {
   final restArgs = argResults.rest;
 
   final command = argResults.command;
+
+  if (argResults[cmdHelp]){
+    usage(null); // TODO: use built in help function from ArgParser
+    return;
+  }
 
   if (command == null || command.name == cmdBuild) {
     try {

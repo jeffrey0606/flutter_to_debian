@@ -13,6 +13,7 @@ class FlutterToDebian {
   bool isNonInteractive = false;
   String execFieldCodes = '';
   String base = "opt";
+  String dpkgOptions = "";
   Directory gui = Directory('debian/gui/');
   DebianControl debianControl = DebianControl(package: '');
 
@@ -75,6 +76,7 @@ class FlutterToDebian {
 
   FlutterToDebian.fromPubspec(YamlMap yamlMap) {
     appExecutableName = yamlMap['name'] as String;
+    dpkgOptions = (yamlMap['dpkg_deb_options'] ?? '') as String;
     debianControl = debianControl.copyWith(
       package: (yamlMap['name'] as String).replaceAll('_', '-'),
       version: ((yamlMap['version'] ?? '') as String).split('+').first,
@@ -86,6 +88,7 @@ class FlutterToDebian {
   FlutterToDebian.fromYaml(YamlMap yamlMap) {
     if (yamlMap.containsKey('flutter_app')) {
       appExecutableName = yamlMap["flutter_app"]["command"];
+      dpkgOptions = yamlMap["flutter_app"]["dpkg_deb_options"] ?? "";
       flutterArch = yamlMap["flutter_app"]["arch"];
       isNonInteractive = yamlMap["flutter_app"]["nonInteractive"] ?? false;
       execFieldCodes = yamlMap["flutter_app"]["execFieldCodes"] ?? "";
@@ -104,6 +107,7 @@ class FlutterToDebian {
         debArch: control["Architecture"],
         maintainer: control["Maintainer"],
         description: control["Description"],
+		depends: control["Depends"],
       );
     }
     if (yamlMap.containsKey('options')) {
@@ -201,6 +205,7 @@ class FlutterToDebian {
     final ProcessResult result = await Process.run(
       "dpkg-deb",
       [
+        if(dpkgOptions != "") dpkgOptions,
         "--build",
         Vars.newDebPackageDirPath,
       ],
