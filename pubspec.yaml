@@ -14,6 +14,7 @@ dependencies:
   args: ^2.4.2
   mime_type: ^1.0.0
   path: ^1.8.1
+  posix: ^6.0.2
   yaml: ^3.1.0
 
 dev_dependencies:

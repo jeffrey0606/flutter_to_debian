@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  ffi:
+    dependency: transitive
+    description:
+      name: ffi
+      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.4"
   lints:
     dependency: "direct dev"
     description:
@@ -33,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  meta:
+    dependency: transitive
+    description:
+      name: meta
+      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.17.0"
   mime_type:
     dependency: "direct main"
     description:
@@ -45,10 +61,18 @@ packages:
     dependency: "direct main"
     description:
       name: path
-      sha256: "240ed0e9bd73daa2182e33c4efc68c7dd53c7c656f3da73515a2d163e151412d"
+      sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.1"
+    version: "1.9.1"
+  posix:
+    dependency: "direct main"
+    description:
+      name: posix
+      sha256: f0d7856b6ca1887cfa6d1d394056a296ae33489db914e365e2044fdada449e62
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.2"
   source_span:
     dependency: transitive
     description:
@@ -82,4 +106,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.19.0 <4.0.0"
+  dart: ">=3.7.0 <4.0.0"
