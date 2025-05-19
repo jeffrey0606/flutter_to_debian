@@ -5,6 +5,7 @@ import 'package:flutter_to_debian/dependencies.dart';
 import 'package:flutter_to_debian/vars.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as path;
+import 'package:posix/posix.dart';
 import 'package:yaml/yaml.dart';
 
 class FlutterToDebian {
@@ -316,7 +317,7 @@ fi
           Vars.newDebPackageDirPath,
         ],
       );
-
+      chmod(Vars.newDebPackageDirPath, '0750');
       if (result.exitCode != 0) {
         throw Exception(result.stderr.toString());
       }
